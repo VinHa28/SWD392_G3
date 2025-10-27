@@ -4,36 +4,52 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { App as AntdApp } from "antd";
+
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+
+// Layout
+import MainLayout from "./layouts/MainLayout";
+
+// Pages
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import Dashboard from "./pages/Admin/Dashboard";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { App as AntdApp } from "antd";
 import Home from "./pages/Home";
 import ProductList from "./pages/ProductList";
 import ProductDetail from "./pages/ProductDetail";
+import Dashboard from "./pages/Admin/Dashboard";
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, user } = useAuth();
+
   if (!isAuthenticated) return <Navigate to="/login" replace />;
+
   const hasAdminRole =
     user.roles?.includes("ROLE_ADMIN") || user.roles?.includes("ADMIN");
-  if (!hasAdminRole) return <Navigate to="/login" replace />;
+
+  if (!hasAdminRole) return <Navigate to="/" replace />;
+
   return children;
 }
+
 export default function App() {
   return (
     <Router>
       <AntdApp>
         <AuthProvider>
           <Routes>
+            {/* ----------- Public pages (có MainLayout) ----------- */}
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/products" element={<ProductList />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+            </Route>
+
+            {/* ----------- Auth pages (không có layout) ----------- */}
             <Route path="/login" element={<Login />} />
-
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/products" element={<ProductList />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
 
+            {/* ----------- Admin page (Dashboard) ----------- */}
             <Route
               path="/dashboard"
               element={
@@ -43,7 +59,7 @@ export default function App() {
               }
             />
 
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </AntdApp>
