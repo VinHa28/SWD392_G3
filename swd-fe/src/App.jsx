@@ -10,6 +10,8 @@ import Dashboard from "./pages/Admin/Dashboard";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { App as AntdApp } from "antd";
 import Home from "./pages/Home";
+import ProductList from "./pages/ProductList";
+import ProductDetail from "./pages/ProductDetail";
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, user } = useAuth();
@@ -29,6 +31,9 @@ export default function App() {
 
             <Route path="/signup" element={<SignUp />} />
             <Route path="/" element={<Home />} />
+            <Route path="/products" element={<ProductList />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+
             <Route
               path="/dashboard"
               element={
