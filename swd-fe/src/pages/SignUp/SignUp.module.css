@@ -1,0 +1,120 @@
+.layoutContainer {
+  margin: 0 auto;
+  max-width: 1440px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Left Background Column Style - Reusing asset from login */
+.backgroundLeft {
+  background: url("../../assets/background_login.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+}
+
+/* Right Content Column Style */
+.contentColumn {
+  padding: 20px 40px 0;
+}
+
+/* Header Styles */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerTitle {
+  color: #111;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.headerText {
+  font-size: 18px;
+  margin: 0;
+}
+
+.headerButton {
+  height: 40px !important;
+  width: 130px;
+  font-size: 20px;
+  font-weight: 500;
+  border-color: #111111 !important;
+  color: #111111 !important;
+}
+
+.signUpContainer {
+  max-width: 558px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 40px 20px;
+  box-sizing: border-box;
+  border: 1px solid rgba(102, 102, 102, 0.35);
+  border-radius: 20px;
+  margin-top: 40px;
+}
+
+.signUpTitle {
+  font-size: 32px;
+  margin: 4px 0;
+  color: #333;
+}
+
+.signUpDesc {
+  font-size: 16px;
+  margin-bottom: 32px;
+  color: #666666;
+}
+
+.signUpForm {
+  width: 100%;
+}
+
+.formItem {
+  margin-bottom: 24px !important;
+}
+
+.inputLabel {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 7px;
+  display: flex;
+}
+
+.textInput {
+  display: flex;
+  width: 100%;
+  height: 56px !important;
+  border: 1px solid rgba(102, 102, 102, 0.35) !important;
+  border-radius: 12px !important;
+  font-size: 16px !important;
+  padding: 0 12px !important;
+}
+
+.signUpButtonContainer {
+  margin-top: 50px !important; /* Adjusted margin to fit more fields */
+}
+
+.formButton {
+  background: #111 !important;
+  border: 1px solid #111 !important;
+  outline: none;
+  border-radius: 999px !important;
+  color: white !important;
+  height: 64px !important;
+  width: 100%;
+  font-size: 18px;
+  font-weight: 500;
+}
