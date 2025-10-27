@@ -52,7 +52,7 @@ export default function Login() {
       <Row style={{ width: "100%" }}>
         <Col span={18} push={6} className={styles.contentColumn}>
           <div className={styles.header}>
-            <h2 className={styles.headerTitle}>Login Admin</h2>
+            <h2 className={styles.headerTitle}>Login</h2>
             <div className={styles.headerRight}>
               <p className={styles.headerText}>You do not have an account? </p>
               <Button

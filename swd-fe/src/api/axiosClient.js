@@ -7,7 +7,7 @@ const axiosClient = axios.create({
     "Content-Type": "application/json",
     // Thêm các header mặc định khác nếu cần, ví dụ: 'Authorization'
   },
-  timeout: 5000,
+  // timeout: 5000,
 });
 
 // Interceptor (Tùy chọn)
@@ -35,7 +35,7 @@ axiosClient.interceptors.response.use(
   (error) => {
     // Xử lý lỗi tập trung, ví dụ: 401 Unauthorized
     if (error.response && error.response.status === 401) {
-      // Có thể redirect người dùng về trang đăng nhập
+      // Redirect về login
       console.error("Unauthorized request. Redirecting to login...");
     }
     return Promise.reject(error);
