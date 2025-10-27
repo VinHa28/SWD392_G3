@@ -1,9 +1,10 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import swdApi from "../api/swdApi";
 import { message } from "antd";
 import { jwtDecode } from "jwt-decode";
+import { login as loginService } from "../services/authService";
 
 const AuthContext = createContext();
 
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       setLoading(true);
-      const res = await swdApi.login({ username, password });
+      const res = await loginService({ username, password });
 
       const token = res?.result?.token;
       if (!token) throw new Error("No token returned from server.");
@@ -34,7 +35,6 @@ export const AuthProvider = ({ children }) => {
         exp: decoded.exp,
       };
 
-      // ✅ Lưu vào localStorage
       localStorage.setItem("accessToken", token);
       localStorage.setItem("user", JSON.stringify(userData));
       setUser(userData);
@@ -44,8 +44,7 @@ export const AuthProvider = ({ children }) => {
         message.success("Welcome admin! Redirecting to dashboard...");
         navigate("/dashboard");
       } else {
-        message.error("You do not have permission to access the admin panel!");
-        logout();
+        navigate("/");
       }
     } catch (error) {
       console.error("Login failed:", error);
