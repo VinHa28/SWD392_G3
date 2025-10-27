@@ -18,7 +18,6 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(false);
 
-  // --- 🧩 LOGIN ---
   const login = async (username, password) => {
     try {
       setLoading(true);

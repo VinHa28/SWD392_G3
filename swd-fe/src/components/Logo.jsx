@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Logo() {
+  const navigate = useNavigate();
   return (
     <div
       style={{
@@ -11,9 +13,13 @@ export default function Logo() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        cursor: "pointer",
+      }}
+      onClick={() => {
+        navigate("/");
       }}
     >
-      Logo
+      <img src="./react.svg" alt="logo" />
     </div>
   );
 }
