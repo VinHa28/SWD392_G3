@@ -19,7 +19,11 @@ export default function Logo() {
         navigate("/");
       }}
     >
-      <img src="./react.svg" alt="logo" />
+      <img
+        src="./logo.png"
+        alt="logo"
+        style={{ width: 50, height: 50, objectFit: "cover" }}
+      />
     </div>
   );
 }
