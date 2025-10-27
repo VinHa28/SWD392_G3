@@ -5,9 +5,16 @@ import { Outlet } from "react-router-dom";
 
 export default function MainLayout() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div style={{ display: "flex", flexDirection: "column" }}>
       <Header />
-      <main className="flex-grow container mx-auto p-4">
+      <main
+        style={{
+          width: 1340,
+          margin: "0 auto",
+          maxWidth: "calc(100% - 48px)",
+          padding: "0 24px",
+        }}
+      >
         <Outlet />
       </main>
       <Footer />
