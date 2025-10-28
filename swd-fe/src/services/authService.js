@@ -9,6 +9,7 @@ export const registerUser = (userData) => {
   /* userData: { 
             username, password, firstName, lastName, 
             dob, roles, phone, email, address  }  */
+  userData.roles = ["USER"];
   return axiosClient.post("/users", userData);
 };
 // GET localhost:8080/swd/users (get users) - Token needed

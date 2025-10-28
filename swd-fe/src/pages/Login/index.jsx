@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Col, Row, Button, Input, Form, Typography } from "antd";
 import styles from "./Login.module.css";
 import Logo from "../../components/Logo";
@@ -26,16 +27,8 @@ export default function Login() {
       let message = "Login failed! Please try again.";
 
       if (error.response) {
-        if (
-          error.response.status === 401 ||
-          error.response.status === 403 ||
-          error.response.status === 404
-        ) {
-          message = "Invalid username or password.";
-        } else {
-          message =
-            error.response.data?.message || "An unknown server error occurred.";
-        }
+        message =
+          error.response.data?.message || "An unknown server error occurred.";
       } else if (error.request) {
         message =
           "Cannot connect to the server. Please check your network or API status.";
