@@ -2,15 +2,15 @@ import { Col, Row, Button, Input, Form, Typography } from "antd";
 import styles from "./Login.module.css";
 import Logo from "../../components/Logo";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const { Text } = Typography;
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, loading } = useAuth();
+  const { login, loading, logout } = useAuth();
   const [errorMessage, setErrorMessage] = useState(null);
 
   const navigateTopSignUp = () => {
@@ -46,6 +46,9 @@ export default function Login() {
       setErrorMessage(message);
     }
   };
+  useEffect(() => {
+    logout();
+  }, []);
 
   return (
     <div className={styles.layoutContainer}>
@@ -150,6 +153,9 @@ export default function Login() {
                 </Button>
               </Form.Item>
             </Form>
+            <Link to={"/login-admin"} style={{ textDecoration: "underline" }}>
+              Are you admin?
+            </Link>
           </div>
         </Col>
 

@@ -18,6 +18,7 @@ import Home from "./pages/Home";
 import ProductList from "./pages/ProductList";
 import ProductDetail from "./pages/ProductDetail";
 import Dashboard from "./pages/Admin/Dashboard";
+import AdminLogin from "./pages/Admin/AdminLogin";
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, user } = useAuth();
@@ -48,6 +49,7 @@ export default function App() {
             {/* ----------- Auth pages (không có layout) ----------- */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/login-admin" element={<AdminLogin />} />
 
             {/* ----------- Admin page (Dashboard) ----------- */}
             <Route
