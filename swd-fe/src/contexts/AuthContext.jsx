@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 import { jwtDecode } from "jwt-decode";
-import { login as loginService } from "../services/authService";
+import { getMyInfo, login as loginService } from "../services/authService";
 
 const AuthContext = createContext();
 

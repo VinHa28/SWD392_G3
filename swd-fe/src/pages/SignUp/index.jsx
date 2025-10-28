@@ -1,16 +1,33 @@
-import { Col, Row, Button, Input, Form } from "antd";
+import { Col, Row, Button, Input, Form, Typography } from "antd";
 import styles from "./SignUp.module.css";
 import Logo from "../../components/Logo";
-import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons"; // Import Ant Design icons for the password toggle
+import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "../../services/authService";
+import { useState } from "react";
+
+const { Text } = Typography;
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
+
   const navigateToLogin = () => {
     navigate("/login");
   };
-  const onFinish = (values) => {
-    console.log("Received values of form: ", values);
+  const onFinish = async (values) => {
+    setErrorMessage(null);
+    try {
+      const res = await registerUser(values);
+      if (res) {
+        alert("Register successfully!");
+        navigate("/login");
+      }
+    } catch (error) {
+      let message =
+        error.response?.data?.message || "Login failed! Please try again.";
+      setErrorMessage(message);
+    }
   };
 
   return (
@@ -36,9 +53,18 @@ export default function SignUp() {
           <div className={styles.signUpContainer}>
             <Logo />
             <h1 className={styles.signUpTitle}>Sign Up</h1>
-            <p className={styles.signUpDesc}>
-              Please fill in the form to create your account.
-            </p>
+            {errorMessage && (
+              <Text
+                type="danger"
+                style={{
+                  marginBottom: 16,
+                  display: "block",
+                  textAlign: "center",
+                }}
+              >
+                {errorMessage}
+              </Text>
+            )}
 
             <Form
               name="signup"
@@ -90,30 +116,57 @@ export default function SignUp() {
                 </Col>
               </Row>
 
+              <Row gutter={24}>
+                <Col span={12}>
+                  <Form.Item
+                    label={
+                      <span className={styles.inputLabel}>Phone Number</span>
+                    }
+                    name="phone"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your Phone Number!",
+                      },
+                    ]}
+                    className={styles.formItem}
+                  >
+                    <Input
+                      className={styles.textInput}
+                      placeholder="Your phone number"
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    label={<span className={styles.inputLabel}>Email</span>}
+                    name="email"
+                    rules={[
+                      { required: true, message: "Please input your Email!" },
+                      {
+                        type: "email",
+                        message: "The input is not valid E-mail!",
+                      },
+                    ]}
+                    className={styles.formItem}
+                  >
+                    <Input
+                      className={styles.textInput}
+                      placeholder="Your email address"
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
               <Form.Item
-                label={<span className={styles.inputLabel}>Phone Number</span>}
-                name="phone"
+                label={<span className={styles.inputLabel}>Username</span>}
+                name="username"
                 rules={[
+                  { required: true, message: "Please input your Username!" },
                   {
-                    required: true,
-                    message: "Please input your Phone Number!",
+                    type: "text",
                   },
-                ]}
-                className={styles.formItem}
-              >
-                <Input
-                  className={styles.textInput}
-                  placeholder="Your phone number"
-                  size="large"
-                />
-              </Form.Item>
-
-              <Form.Item
-                label={<span className={styles.inputLabel}>Email</span>}
-                name="email"
-                rules={[
-                  { required: true, message: "Please input your Email!" },
-                  { type: "email", message: "The input is not valid E-mail!" },
                 ]}
                 className={styles.formItem}
               >
@@ -165,7 +218,6 @@ export default function SignUp() {
           </div>
         </Col>
 
-        {/* Left Background Column */}
         <Col span={6} pull={18} className={styles.backgroundLeft}></Col>
       </Row>
     </div>

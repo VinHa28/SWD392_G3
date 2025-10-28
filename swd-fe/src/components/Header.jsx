@@ -12,32 +12,94 @@ import {
 } from "antd";
 import {
   SearchOutlined,
-  UserOutlined,
   ShoppingCartOutlined,
   DownOutlined,
+  UserOutlined, 
+  LogoutOutlined, 
 } from "@ant-design/icons";
 import Logo from "./Logo";
 import { useAuth } from "../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import Avatar from "./Avatar";
+import { getMyInfo } from "../services/authService";
+import { useEffect, useState } from "react";
+import Loading from "./Loading";
+import { getAllCategories } from "../services/categoryService";
 
 const { Header: AntdHeader } = Layout;
 const { Search } = Input;
 const { Title } = Typography;
 
-const categoriesMenu = (
-  <Menu
-    items={[
-      { key: "1", label: "Cakes" },
-      { key: "2", label: "Chocolates" },
-      { key: "3", label: "Cookies" },
-      { key: "4", label: "Cheesecake Pies" },
-    ]}
-  />
-);
-
 const Header = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
+
+  const getData = async () => {
+    setLoading(true);
+    try {
+      const resInfo = await getMyInfo();
+      const resCate = await getAllCategories();
+      setCategories(
+        resCate.result.map((item, index) => ({
+          key: index + 1,
+          label: item.name,
+        }))
+      );
+      setUserInfo(resInfo.result);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const categoriesMenu = <Menu items={categories} />;
+
+  useEffect(() => {
+    if (user) {
+      getData();
+    }
+  }, [user]);
+
+  if (loading) return <Loading />;
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const userMenu = (
+    <Menu
+      items={[
+        {
+          key: "profile",
+          label: (
+            <Link to="/profile">
+              <Space>
+                <UserOutlined />
+                Profile
+              </Space>
+            </Link>
+          ),
+        },
+        {
+          key: "logout",
+          label: (
+            <Space>
+              <LogoutOutlined />
+              Đăng xuất
+            </Space>
+          ),
+          danger: true,
+          onClick: handleLogout,
+        },
+      ]}
+    />
+  );
+
   return (
     <AntdHeader
       style={{
@@ -126,7 +188,20 @@ const Header = () => {
 
           {user ? (
             <Space size="large">
-              <UserOutlined style={{ fontSize: "20px", color: "#333333" }} />
+              {userInfo && (
+                <Dropdown
+                  overlay={userMenu}
+                  trigger={["hover"]}
+                  placement="bottomRight"
+                >
+                  <div style={{ cursor: "pointer" }}>
+                    <Avatar
+                      firstName={userInfo.firstName}
+                      lastName={userInfo.lastName}
+                    />
+                  </div>
+                </Dropdown>
+              )}
               <ShoppingCartOutlined
                 style={{ fontSize: "20px", color: "#333333" }}
               />
