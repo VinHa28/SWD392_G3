@@ -14,8 +14,8 @@ import {
   SearchOutlined,
   ShoppingCartOutlined,
   DownOutlined,
-  UserOutlined, 
-  LogoutOutlined, 
+  UserOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import Logo from "./Logo";
 import { useAuth } from "../contexts/AuthContext";
@@ -33,7 +33,7 @@ const { Title } = Typography;
 const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState({});
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
 
@@ -188,20 +188,18 @@ const Header = () => {
 
           {user ? (
             <Space size="large">
-              {userInfo && (
-                <Dropdown
-                  overlay={userMenu}
-                  trigger={["hover"]}
-                  placement="bottomRight"
-                >
-                  <div style={{ cursor: "pointer" }}>
-                    <Avatar
-                      firstName={userInfo.firstName}
-                      lastName={userInfo.lastName}
-                    />
-                  </div>
-                </Dropdown>
-              )}
+              <Dropdown
+                overlay={userMenu}
+                trigger={["hover"]}
+                placement="bottomRight"
+              >
+                <div style={{ cursor: "pointer" }}>
+                  <Avatar
+                    firstName={userInfo.firstName || ""}
+                    lastName={userInfo.lastName || ""}
+                  />
+                </div>
+              </Dropdown>
               <ShoppingCartOutlined
                 style={{ fontSize: "20px", color: "#333333" }}
               />

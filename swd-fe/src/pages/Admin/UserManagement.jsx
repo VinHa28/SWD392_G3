@@ -1,44 +1,65 @@
-// ./pages/Admin/UserManagement.jsx
-
-import React, { useState } from "react";
-import { Table, Button, Space, Modal, Form, Input, Select, Tag } from "antd";
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from "react";
+import {
+  Table,
+  Button,
+  Space,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Tag,
+  message,
+} from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import Loading from "../../components/Loading";
+import {
+  getAllUsers,
+  registerUser,
+  updateUser,
+} from "../../services/authService";
 
 const { Option } = Select;
 
-// Dữ liệu mẫu (sẽ được thay thế bằng API call sau)
-const initialUsers = [
-  {
-    id: 1,
-    key: "1",
-    username: "admin_user",
-    email: "admin@example.com",
-    role: "ADMIN",
-    status: "Active",
-  },
-  {
-    id: 2,
-    key: "2",
-    username: "jane_doe",
-    email: "jane@example.com",
-    role: "USER",
-    status: "Active",
-  },
-  {
-    id: 3,
-    key: "3",
-    username: "johnny_banned",
-    email: "john@example.com",
-    role: "USER",
-    status: "Banned",
-  },
-];
+const transformUserRoles = (user) => {
+  if (
+    user.roles &&
+    user.roles.length > 0 &&
+    typeof user.roles[0] === "object"
+  ) {
+    return {
+      ...user,
+      roles: user.roles.map((role) => role.name),
+      key: user.id,
+    };
+  }
+  return { ...user, key: user.id };
+};
 
-export default function UserManagement() {
-  const [users, setUsers] = useState(initialUsers);
+export default function UserManagement({ messageApi, modal }) {
+  const [users, setUsers] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingUser, setEditingUser] = useState(null); // null: thêm mới, object: chỉnh sửa
+  const [editingUser, setEditingUser] = useState(null);
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  // Get Users
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const res = await getAllUsers();
+      if (res.result) {
+        const transformedUsers = res.result.map(transformUserRoles);
+        setUsers(transformedUsers);
+      }
+    } catch (error) {
+      const messageError =
+        error.response?.data?.message || "Error fetching users";
+      messageApi.error(messageError);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const showModal = (user = null) => {
     setEditingUser(user);
@@ -56,50 +77,58 @@ export default function UserManagement() {
     form.resetFields();
   };
 
-  const onFinish = (values) => {
-    // ⚠️ Logic Call API:
-    // Nếu editingUser có id -> PUT/PATCH (Cập nhật)
-    // Nếu editingUser là null -> POST (Thêm mới)
-
+  const onFinish = async (values) => {
+    setLoading(true);
+    console.log(JSON.stringify(values));
     if (editingUser) {
-      // Cập nhật UI (Tạm thời)
-      setUsers(
-        users.map((user) =>
-          user.id === editingUser.id ? { ...user, ...values } : user
-        )
-      );
+      try {
+        const res = await updateUser(editingUser.id, values);
+        if (res)
+          messageApi.success(
+            `Cập nhật người dùng "${editingUser.username}" thành công!`
+          );
+      } catch (error) {
+        const errorMessage =
+          error.response?.data?.message || "Error updating user";
+        messageApi.error(errorMessage);
+      }
     } else {
-      // Thêm mới UI (Tạm thời)
-      const newUser = {
-        ...values,
-        id: Date.now(),
-        key: Date.now().toString(),
-        status: "Active", // Mặc định là Active
-      };
-      setUsers([...users, newUser]);
+      try {
+        const res = await registerUser(values);
+        if (res) messageApi.success("Thêm người dùng mới thành công!");
+      } catch (error) {
+        const errorMessage =
+          error.response?.data?.message || "Error creating user";
+        messageApi.error(errorMessage);
+      }
     }
-
+    fetchUsers();
+    setLoading(false);
     setIsModalVisible(false);
   };
 
   const handleDelete = (id) => {
-    // ⚠️ Logic Call API: DELETE
-    Modal.confirm({
+    modal.confirm({
       title: "Xác nhận Xóa",
-      content: `Bạn có chắc muốn xóa người dùng có ID: ${id}?`,
+      content: `Bạn có chắc muốn xóa người dùng này?`,
       onOk() {
-        // Xóa khỏi UI (Tạm thời)
         setUsers(users.filter((user) => user.id !== id));
-        // console.log(`API Xóa user ID: ${id}`);
+        messageApi.success(`Xóa người dùng ID: ${id} thành công!`);
       },
     });
   };
 
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "STT",
+      key: "stt",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: "Họ và tên",
+      key: "fullName",
+      render: (_, record) =>
+        `${record.firstName || ""} ${record.lastName || ""}`,
     },
     {
       title: "Tên đăng nhập",
@@ -113,20 +142,35 @@ export default function UserManagement() {
     },
     {
       title: "Vai trò",
-      dataIndex: "role",
-      key: "role",
-      render: (role) => (
-        <Tag color={role === "ADMIN" ? "volcano" : "green"}>{role}</Tag>
-      ),
+      dataIndex: "roles",
+      key: "roles",
+      render: (roles) => {
+        const roleNames = Array.isArray(roles)
+          ? roles.map((role) =>
+              typeof role === "object" && role !== null ? role.name : role
+            )
+          : [];
+
+        return (
+          <>
+            {roleNames.map((roleName) => {
+              let color = roleName === "ADMIN" ? "volcano" : "green";
+              return (
+                <Tag
+                  color={color}
+                  key={roleName}
+                  style={{ marginRight: 3, marginBottom: 3 }}
+                >
+                  {roleName}
+                </Tag>
+              );
+            })}
+          </>
+        );
+      },
     },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => (
-        <Tag color={status === "Active" ? "blue" : "red"}>{status}</Tag>
-      ),
-    },
+    // Cột trạng thái đã bị xóa
+
     {
       title: "Hành động",
       key: "action",
@@ -153,6 +197,12 @@ export default function UserManagement() {
     },
   ];
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  if (loading) return <Loading />;
+
   return (
     <>
       <h2>Quản lý Người dùng 🧑‍💻</h2>
@@ -170,14 +220,32 @@ export default function UserManagement() {
         title={editingUser ? "Chỉnh sửa Người dùng" : "Thêm Người dùng mới"}
         open={isModalVisible}
         onCancel={handleCancel}
-        footer={null} // Tắt footer mặc định để dùng nút trong Form
+        footer={null}
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={onFinish}
-          initialValues={{ role: "USER" }}
+          initialValues={{ roles: ["USER"] }} // Giá trị mặc định là mảng ["USER"]
         >
+          {/* FORM ITEMS CHO HỌ VÀ TÊN */}
+          <Space>
+            <Form.Item
+              name="firstName"
+              label="Họ"
+              rules={[{ required: true, message: "Vui lòng nhập họ!" }]}
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              name="lastName"
+              label="Tên"
+              rules={[{ required: true, message: "Vui lòng nhập tên!" }]}
+            >
+              <Input />
+            </Form.Item>
+          </Space>
+
           <Form.Item
             name="username"
             label="Tên đăng nhập"
@@ -185,7 +253,7 @@ export default function UserManagement() {
               { required: true, message: "Vui lòng nhập tên đăng nhập!" },
             ]}
           >
-            <Input />
+            <Input disabled={!!editingUser} />
           </Form.Item>
           <Form.Item
             name="email"
@@ -194,12 +262,13 @@ export default function UserManagement() {
           >
             <Input type="email" />
           </Form.Item>
+          {/* Cập nhật field 'roles' để chọn nhiều giá trị */}
           <Form.Item
-            name="role"
+            name="roles" // Đã sửa thành 'roles'
             label="Vai trò"
             rules={[{ required: true, message: "Vui lòng chọn vai trò!" }]}
           >
-            <Select>
+            <Select mode="multiple" placeholder="Chọn vai trò">
               <Option value="ADMIN">ADMIN</Option>
               <Option value="USER">USER</Option>
             </Select>
