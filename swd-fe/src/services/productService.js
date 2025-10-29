@@ -22,6 +22,6 @@ export const updateProduct = (id, productData) => {
 };
 
 // DELETE localhost:8080/swd/products/{id} - Token needed
-export const deleteProduct = (id) => {
+export const deleteProductById = (id) => {
   return axiosClient.delete(`/products/${id}`);
 };

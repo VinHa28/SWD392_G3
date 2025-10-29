@@ -21,3 +21,7 @@ export const updateCategory = (id, categoryData) => {
   // categoryData: { name, description, imageUrl }
   return axiosClient.put(`/categories/${id}`, categoryData);
 };
+
+export const deleteCategory = (id) => {
+  return axiosClient.delete(`/categories/${id}`);
+};

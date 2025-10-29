@@ -1,21 +1,55 @@
 // ./pages/Admin/CategoryManagement.jsx
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Button, Space, Modal, Form, Input, Tag } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import Loading from "../../components/Loading";
+import {
+  createCategory,
+  deleteCategory,
+  getAllCategories,
+  updateCategory,
+} from "../../services/categoryService";
 
-// Dữ liệu mẫu
-const initialCategories = [
-  { id: 1, key: "1", name: "Điện thoại", slug: "dien-thoai", productCount: 150 },
-  { id: 2, key: "2", name: "Laptop", slug: "laptop", productCount: 80 },
-  { id: 3, key: "3", name: "Phụ kiện", slug: "phu-kien", productCount: 320 },
-];
-
-export default function CategoryManagement() {
-  const [categories, setCategories] = useState(initialCategories);
+export default function CategoryManagement({ modal, messageApi }) {
+  const [categories, setCategories] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  const fetchCategories = async () => {
+    setLoading(true);
+    try {
+      const res = await getAllCategories({});
+      if (res && res.result) {
+        const transformedCategories = res.result.map((cat) => ({
+          ...cat,
+          key: cat.id,
+        }));
+        setCategories(transformedCategories);
+      }
+    } catch (error) {
+      const messageError =
+        error.response?.data?.message || "Error fetching categories";
+      messageApi.error(messageError);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteCate = async (id) => {
+    try {
+      const res = await deleteCategory(id);
+      if (res) messageApi.success(`Xóa Danh mục thành công!`);
+    } catch (error) {
+      const messageError =
+        error.response?.data?.message || "Error deleting categories";
+      messageApi.error(messageError);
+    } finally {
+      fetchCategories();
+    }
+  };
 
   const showModal = (category = null) => {
     setEditingCategory(category);
@@ -33,46 +67,48 @@ export default function CategoryManagement() {
     form.resetFields();
   };
 
-  const onFinish = (values) => {
-    // ⚠️ Logic Call API: POST/PUT
+  const onFinish = async (values) => {
     if (editingCategory) {
-      // Cập nhật UI (Tạm thời)
-      setCategories(
-        categories.map((cat) =>
-          cat.id === editingCategory.id ? { ...cat, ...values } : cat
-        )
-      );
+      try {
+        const res = await updateCategory(editingCategory.id, values);
+        if (res)
+          messageApi.success(
+            `Cập nhật Danh mục ID: ${editingCategory.name} thành công!`
+          );
+      } catch (error) {
+        const errorMessage =
+          error.response?.data?.message || "Error updating category";
+        messageApi.error(errorMessage);
+      }
     } else {
-      // Thêm mới UI (Tạm thời)
-      const newCat = {
-        ...values,
-        id: Date.now(),
-        key: Date.now().toString(),
-        productCount: 0, // Mặc định là 0
-      };
-      setCategories([...categories, newCat]);
+      try {
+        const res = await createCategory(values);
+        if (res) messageApi.success("Thêm Danh mục mới thành công!");
+      } catch (error) {
+        const errorMessage =
+          error.response?.data?.message || "Error creating category";
+        messageApi.error(errorMessage);
+      }
     }
-
+    fetchCategories();
     setIsModalVisible(false);
   };
 
   const handleDelete = (id) => {
-    // ⚠️ Logic Call API: DELETE
-    Modal.confirm({
+    modal.confirm({
       title: "Xác nhận Xóa",
       content: `Bạn có chắc muốn xóa Danh mục ID: ${id}?`,
       onOk() {
-        setCategories(categories.filter((cat) => cat.id !== id));
-        // console.log(`API Xóa Category ID: ${id}`);
+        deleteCate(id);
       },
     });
   };
 
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
+      title: "STT",
+      key: "stt",
+      render: (_, __, index) => index + 1,
     },
     {
       title: "Tên Danh mục",
@@ -80,16 +116,20 @@ export default function CategoryManagement() {
       key: "name",
     },
     {
-      title: "Slug",
-      dataIndex: "slug",
-      key: "slug",
-      render: (slug) => <Tag color="blue">{slug}</Tag>,
+      title: "Mô tả",
+      dataIndex: "description",
+      key: "description",
+      ellipsis: true,
     },
     {
-      title: "Số lượng SP",
-      dataIndex: "productCount",
-      key: "productCount",
-      sorter: (a, b) => a.productCount - b.productCount,
+      title: "URL Ảnh",
+      dataIndex: "imageUrl",
+      key: "imageUrl",
+      render: (url) => (
+        <Tag color={url ? "blue" : "default"}>
+          {url ? "Có URL Ảnh" : "Chưa có"}
+        </Tag>
+      ),
     },
     {
       title: "Hành động",
@@ -117,6 +157,11 @@ export default function CategoryManagement() {
     },
   ];
 
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+  if (loading) return <Loading />;
+
   return (
     <>
       <h2>Quản lý Danh mục 🏷️</h2>
@@ -129,7 +174,6 @@ export default function CategoryManagement() {
         Thêm Danh mục mới
       </Button>
       <Table columns={columns} dataSource={categories} rowKey="id" />
-
       <Modal
         title={editingCategory ? "Chỉnh sửa Danh mục" : "Thêm Danh mục mới"}
         open={isModalVisible}
@@ -140,21 +184,23 @@ export default function CategoryManagement() {
           <Form.Item
             name="name"
             label="Tên Danh mục"
-            rules={[
-              { required: true, message: "Vui lòng nhập tên danh mục!" },
-            ]}
+            rules={[{ required: true, message: "Vui lòng nhập tên danh mục!" }]}
           >
             <Input />
           </Form.Item>
+          {/* TRƯỜNG MÔ TẢ */}
           <Form.Item
-            name="slug"
-            label="Slug (URL Friendly Name)"
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập slug!",
-              },
-            ]}
+            name="description"
+            label="Mô tả"
+            rules={[{ required: true, message: "Vui lòng nhập mô tả!" }]}
+          >
+            <Input.TextArea rows={4} />
+          </Form.Item>
+          {/* TRƯỜNG URL ẢNH */}
+          <Form.Item
+            name="imageUrl"
+            label="URL Ảnh"
+            rules={[{ required: true, message: "Vui lòng nhập URL ảnh!" }]}
           >
             <Input />
           </Form.Item>
