@@ -31,14 +31,29 @@ public class ProductController {
         return apiResponse;
     }
 
-    // ====== GET ALL ======
-    @GetMapping
-    ApiResponse<List<ProductResponse>> getProducts() {
-        log.info("Controller: Get all products");
-        ApiResponse<List<ProductResponse>> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(productService.getAllProducts());
-        return apiResponse;
-    }
+//    // ====== GET ALL ======
+//    @GetMapping
+//    ApiResponse<List<ProductResponse>> getProducts() {
+//        log.info("Controller: Get all products");
+//        ApiResponse<List<ProductResponse>> apiResponse = new ApiResponse<>();
+//        apiResponse.setResult(productService.getAllProducts());
+//        return apiResponse;
+//    }
+@GetMapping
+ApiResponse<List<ProductResponse>> getProducts(
+        @RequestParam(required = false) String search,
+        @RequestParam(required = false) String categoryId,
+        @RequestParam(required = false) Double minPrice,
+        @RequestParam(required = false) Double maxPrice
+) {
+    log.info("Controller: Get products with filters - search={}, categoryId={}, minPrice={}, maxPrice={}",
+            search, categoryId, minPrice, maxPrice);
+
+    ApiResponse<List<ProductResponse>> apiResponse = new ApiResponse<>();
+    apiResponse.setResult(productService.getProducts(search, categoryId, minPrice, maxPrice));
+    return apiResponse;
+}
+
 
     // ====== GET BY ID ======
     @GetMapping("/{productId}")

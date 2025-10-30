@@ -8,7 +8,6 @@ import {
   Typography,
   Dropdown,
   Space,
-  Flex,
 } from "antd";
 import {
   SearchOutlined,
@@ -27,7 +26,6 @@ import Loading from "./Loading";
 import { getAllCategories } from "../services/categoryService";
 
 const { Header: AntdHeader } = Layout;
-const { Search } = Input;
 const { Title } = Typography;
 
 const Header = () => {
@@ -42,9 +40,10 @@ const Header = () => {
     try {
       const resInfo = await getMyInfo();
       const resCate = await getAllCategories();
+      // ✅ Giữ key là id để dùng điều hướng chính xác
       setCategories(
-        resCate.result.map((item, index) => ({
-          key: index + 1,
+        resCate.result.map((item) => ({
+          key: item.id,
           label: item.name,
         }))
       );
@@ -56,7 +55,22 @@ const Header = () => {
     }
   };
 
-  const categoriesMenu = <Menu items={categories} />;
+  // 🔹 Khi click danh mục → chuyển hướng sang trang CategoryPage
+  const handleCategoryClick = (categoryId) => {
+    navigate(`/category/${categoryId}`);
+  };
+
+  // 🔹 Menu danh mục (Dropdown)
+  const categoriesMenu = (
+    <Menu
+      items={categories.map((c) => ({
+        key: c.key,
+        label: (
+          <span onClick={() => handleCategoryClick(c.key)}>{c.label}</span>
+        ),
+      }))}
+    />
+  );
 
   useEffect(() => {
     if (user) {
@@ -111,23 +125,22 @@ const Header = () => {
       }}
     >
       <Row justify="space-between" align="middle" style={{ width: "100%" }}>
-        <Col
-          span={4}
-          style={{ display: "flex", alignItems: "center", gap: 16 }}
-        >
+        {/* Logo + Brand name */}
+        <Col span={4} style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Logo />
           <Title level={3} style={{ margin: 0, color: "#333333" }}>
             GiaHoaPhat
           </Title>
         </Col>
 
+        {/* Navigation Menu */}
         <Col span={10}>
           <Menu
             mode="horizontal"
             defaultSelectedKeys={["home"]}
             style={{ borderBottom: "none", lineHeight: "78px" }}
             items={[
-              { key: "home", label: <Link to={"/"}>Home</Link> },
+              { key: "home", label: <Link to="/">Home</Link> },
               {
                 key: "categories",
                 label: (
@@ -141,14 +154,12 @@ const Header = () => {
                   </Dropdown>
                 ),
               },
-              {
-                key: "products",
-                label: <Link to={"/products"}>Products</Link>,
-              },
+              { key: "products", label: <Link to="/products">Products</Link> },
             ]}
           />
         </Col>
 
+        {/* Search + User + Cart */}
         <Col
           span={10}
           style={{
@@ -157,6 +168,7 @@ const Header = () => {
             alignItems: "center",
           }}
         >
+          {/* Search Box */}
           <div
             style={{
               display: "flex",
@@ -186,6 +198,7 @@ const Header = () => {
             />
           </div>
 
+          {/* User dropdown */}
           {user ? (
             <Space size="large">
               <Dropdown
@@ -205,6 +218,7 @@ const Header = () => {
               />
             </Space>
           ) : (
+            // Login / Signup Buttons
             <div style={{ display: "flex", gap: 10 }}>
               <Button
                 style={{
@@ -217,9 +231,7 @@ const Header = () => {
                   color: "#8B0000",
                 }}
                 size="large"
-                onClick={() => {
-                  navigate("/login");
-                }}
+                onClick={() => navigate("/login")}
               >
                 Login
               </Button>
@@ -233,9 +245,7 @@ const Header = () => {
                   backgroundColor: "#8B0000",
                   color: "white",
                 }}
-                onClick={() => {
-                  navigate("/signup");
-                }}
+                onClick={() => navigate("/signup")}
                 size="large"
               >
                 Signup

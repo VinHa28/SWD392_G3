@@ -90,6 +90,23 @@ public class ProductService {
         }
         productRepository.deleteById(id);
     }
+    // ====== READ WITH FILTER ======
+    public List<ProductResponse> getProducts(String search, String categoryId, Double minPrice, Double maxPrice) {
+        log.info("Service: Get products with filters - search={}, categoryId={}, minPrice={}, maxPrice={}",
+                search, categoryId, minPrice, maxPrice);
+
+        List<Product> products = productRepository.findAll();
+
+        return products.stream()
+                .filter(p -> search == null || p.getName().toLowerCase().contains(search.toLowerCase()))
+                .filter(p -> categoryId == null || p.getCategories().stream()
+                        .anyMatch(c -> c.getId().equals(categoryId)))
+                .filter(p -> minPrice == null || p.getPrice() >= minPrice)
+                .filter(p -> maxPrice == null || p.getPrice() <= maxPrice)
+                .map(productMapper::toProductResponse)
+                .toList();
+    }
+
 }
 
 
