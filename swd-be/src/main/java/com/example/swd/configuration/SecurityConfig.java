@@ -26,7 +26,7 @@ public class SecurityConfig {
 
     private final String[] PUBLIC_URLS = {
             "/users", "/auth/token", "/auth/introspect",
-            "/auth/logout", "/auth/refresh", "/test"
+            "/auth/logout", "/auth/refresh", "/test", "/products"
     };
 
     @Autowired
