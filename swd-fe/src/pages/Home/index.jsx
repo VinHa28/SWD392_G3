@@ -1,36 +1,12 @@
-<<<<<<< Updated upstream
-import { Button } from "antd";
-import React from "react";
-import { useNavigate } from "react-router-dom";
-
-=======
 import { Typography, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
->>>>>>> Stashed changes
 export default function Home() {
   const navigate = useNavigate();
 
   return (
-<<<<<<< Updated upstream
-    <div>
-      Hompage
-      <Button
-        onClick={() => {
-          navigate("/login");
-        }}
-      >
-        Login
-      </Button>
-      <Button
-        onClick={() => {
-          navigate("/signup");
-        }}
-      >
-        SignUp
-=======
     <div style={{ padding: "60px 80px", textAlign: "center" }}>
       {/* Logo + tên thương hiệu */}
       <div
@@ -93,7 +69,6 @@ export default function Home() {
         onClick={() => navigate("/products")}
       >
         Xem sản phẩm
->>>>>>> Stashed changes
       </Button>
     </div>
   );

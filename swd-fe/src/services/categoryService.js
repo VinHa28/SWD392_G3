@@ -1,12 +1,12 @@
 import axiosClient from "../api/axiosClient";
 
-// POST localhost:8080/swd/categories (Tạo Category) - Token needed
+// 🟢 POST /swd/categories - Tạo Category (Token required)
 export const createCategory = (categoryData) => {
   // categoryData: { name, description, imageUrl }
   return axiosClient.post("/categories", categoryData);
 };
 
-// GET localhost:8080/swd/categories (Lấy danh sách Categories, có filter)
+// 🟢 GET /swd/categories - Lấy danh sách Categories (có filter)
 export const getAllCategories = (filters = {}) => {
   /*
     filters có thể gồm:
@@ -27,21 +27,18 @@ export const getAllCategories = (filters = {}) => {
   return axiosClient.get("/categories", { params });
 };
 
-// GET localhost:8080/swd/categories/{id} (Lấy Category theo ID) - Token needed
+// 🟢 GET /swd/categories/{id} - Lấy Category theo ID (Token required)
 export const getCategoryById = (id) => {
   return axiosClient.get(`/categories/${id}`);
 };
 
-// PUT localhost:8080/swd/categories/{id} (Cập nhật Category) - Token needed
+// 🟢 PUT /swd/categories/{id} - Cập nhật Category (Token required)
 export const updateCategory = (id, categoryData) => {
   // categoryData: { name, description, imageUrl }
   return axiosClient.put(`/categories/${id}`, categoryData);
 };
-<<<<<<< Updated upstream
-=======
 
-// DELETE localhost:8080/swd/categories/{id} - Token needed
+// 🟢 DELETE /swd/categories/{id} - Xóa Category (Token required)
 export const deleteCategory = (id) => {
   return axiosClient.delete(`/categories/${id}`);
 };
->>>>>>> Stashed changes

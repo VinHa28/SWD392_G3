@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 import { jwtDecode } from "jwt-decode";
-import { login as loginService } from "../services/authService";
+import { getMyInfo, login as loginService } from "../services/authService";
 
 const AuthContext = createContext();
 
@@ -18,8 +19,35 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(false);
 
-  // --- 🧩 LOGIN ---
   const login = async (username, password) => {
+    try {
+      setLoading(true);
+      const res = await loginService({ username, password });
+
+      const token = res?.result?.token;
+      if (!token) throw new Error("No token returned from server.");
+
+      const decoded = jwtDecode(token);
+      const roles = decoded.scope ? decoded.scope.split(" ") : [];
+      const userData = {
+        username: decoded.sub,
+        roles,
+        exp: decoded.exp,
+      };
+
+      localStorage.setItem("accessToken", token);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+      setLoading(false);
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed:", error);
+      setLoading(false);
+      throw error;
+    }
+  };
+
+  const adminLogin = async (username, password) => {
     try {
       setLoading(true);
       const res = await loginService({ username, password });
@@ -44,7 +72,9 @@ export const AuthProvider = ({ children }) => {
         message.success("Welcome admin! Redirecting to dashboard...");
         navigate("/dashboard");
       } else {
-        navigate("/");
+        alert("You do not have access!");
+        logout();
+        navigate("/login");
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -88,6 +118,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!user,
     login,
     logout,
+    adminLogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

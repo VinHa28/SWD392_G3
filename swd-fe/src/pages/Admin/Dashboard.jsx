@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Layout, Menu, theme } from "antd";
+import { Col, Layout, Menu, message, Modal, theme } from "antd";
 import {
   UserOutlined,
   TagsOutlined,
@@ -11,65 +11,61 @@ import { useNavigate } from "react-router-dom";
 import UserManagement from "./UserManagement";
 import CategoryManagement from "./CategoryManagement";
 import ProductManagement from "./ProductManagement";
+import Logo from "../../components/Logo";
+import Title from "antd/es/typography/Title";
 
 const { Header, Content, Sider } = Layout;
 
 // Danh sách các mục menu
-const menuItems = [
-  {
-    key: "users",
-    icon: <UserOutlined />,
-    label: "Quản lý Người dùng",
-    component: <UserManagement />,
-  },
-  {
-    key: "categories",
-    icon: <TagsOutlined />,
-    label: "Quản lý Danh mục",
-    component: <CategoryManagement />,
-  },
-  {
-    key: "products",
-    icon: <GiftOutlined />,
-    label: "Quản lý Sản phẩm",
-    component: <ProductManagement />,
-  },
-];
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  // Lấy key hiện tại từ URL nếu bạn muốn menu đồng bộ với URL
-  // const location = useLocation();
-  // const defaultSelectedKey = location.pathname.split('/').pop() || 'users';
-
-  // State để quản lý item đang được chọn. Mặc định là 'users'
   const [selectedKey, setSelectedKey] = useState("users");
-  const { logout } = useAuth(); // Giả sử useAuth có hàm logout
-
+  const { logout } = useAuth();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [modal, modalHolder] = Modal.useModal();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  const menuItems = [
+    {
+      key: "users",
+      icon: <UserOutlined />,
+      label: "Quản lý Người dùng",
+      component: <UserManagement messageApi={messageApi} modal={modal} />,
+    },
+    {
+      key: "categories",
+      icon: <TagsOutlined />,
+      label: "Quản lý Danh mục",
+      component: <CategoryManagement messageApi={messageApi} modal={modal} />,
+    },
+    {
+      key: "products",
+      icon: <GiftOutlined />,
+      label: "Quản lý Sản phẩm",
+      component: <ProductManagement messageApi={messageApi} modal={modal} />,
+    },
+  ];
+
   const handleMenuClick = (e) => {
     setSelectedKey(e.key);
-    // Nếu muốn chuyển đổi URL, có thể dùng:
-    // navigate(`/dashboard/${e.key}`);
   };
 
   const handleLogout = () => {
-    // Chỉ là UI logic, gọi API đăng xuất sau
-    // console.log("Đăng xuất...");
     logout();
     navigate("/login");
   };
 
-  // Tìm component tương ứng với key đã chọn
   const ContentComponent = menuItems.find(
     (item) => item.key === selectedKey
   )?.component;
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
+      {contextHolder}
+      {modalHolder}
       <Sider breakpoint="lg" collapsedWidth="0">
         <div
           className="demo-logo-vertical"
@@ -106,13 +102,26 @@ export default function Dashboard() {
       <Layout>
         <Header
           style={{
-            padding: 0,
+            padding: "0 24px",
             background: colorBgContainer,
-            textAlign: "right",
-            paddingRight: 24,
             fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
+          <Col
+            span={4}
+            style={{ display: "flex", alignItems: "center", gap: 16 }}
+          >
+            <Logo />
+            <Title
+              level={3}
+              style={{ margin: 0, color: "#333333", whiteSpace: "nowrap" }}
+            >
+              GiaHoaPhat
+            </Title>
+          </Col>
           Xin chào Admin!
         </Header>
         <Content
