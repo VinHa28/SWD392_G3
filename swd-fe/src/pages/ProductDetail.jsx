@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom"; // 👈 thêm useNavigate
+import { useAuth } from "../contexts/AuthContext";
+import cartService from "../services/cartService";
+import { message, Button, Spin, Tag } from "antd";
+import { ShoppingCartOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { getProductById } from "../services/productService";
-import { Button, Spin, Tag, message } from "antd";
-import {
-  ShoppingCartOutlined,
-  ArrowLeftOutlined,
-  InboxOutlined,
-  TagsOutlined,
-} from "@ant-design/icons";
 
 export default function ProductDetail() {
   const { id } = useParams();
-  const navigate = useNavigate(); // 👈 khởi tạo navigate
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -21,155 +19,38 @@ export default function ProductDetail() {
       try {
         setLoading(true);
         const res = await getProductById(id);
-        setProduct(res.data || res.result || null);
+        setProduct(res.data || res.result);
       } catch (err) {
-        console.error("Error fetching product:", err);
-        message.error("Failed to load product details!");
-      } finally {
-        setLoading(false);
-      }
+        message.error("Failed to load product!");
+      } finally { setLoading(false); }
     };
     fetchProduct();
   }, [id]);
 
-  const handleAddToCart = () => {
-    if (!product) return;
+  const handleAddToCart = async () => {
+    if(!user){ message.warning("Đăng nhập để thêm vào giỏ!"); navigate("/login"); return; }
     setAdding(true);
-    setTimeout(() => {
-      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-      const existing = cart.find((item) => item.id === product.id);
-      if (existing) existing.quantity += 1;
-      else cart.push({ ...product, quantity: 1 });
-      localStorage.setItem("cart", JSON.stringify(cart));
-      message.success(`${product.name} added to cart! 🛒`);
-      setAdding(false);
-    }, 500);
+    try {
+await cartService.addToCart(product.id, 1); // ← product.id là String, 1 là Integer      message.success(`${product.name} đã thêm vào giỏ!`);
+      window.dispatchEvent(new Event("cartUpdated")); // Header tự refresh
+    } catch(err){
+      message.error("Lỗi thêm giỏ hàng!");
+    } finally { setAdding(false); }
   };
 
-  if (loading)
-    return (
-      <div style={{ textAlign: "center", marginTop: 100 }}>
-        <Spin size="large" />
-        <p style={{ marginTop: 12 }}>Loading product details...</p>
-      </div>
-    );
-
-  if (!product)
-    return (
-      <div style={{ textAlign: "center", padding: 50 }}>
-        <p>❌ Product not found.</p>
-        <Link to="/products">
-          <Button icon={<ArrowLeftOutlined />} type="primary">
-            Back to Products
-          </Button>
-        </Link>
-      </div>
-    );
+  if(loading) return <Spin size="large" style={{marginTop:100}} />;
+  if(!product) return <p>Product not found</p>;
 
   return (
-    <div
-      style={{
-        padding: "40px 20px",
-        display: "flex",
-        justifyContent: "center",
-        backgroundColor: "#fff",
-        minHeight: "100vh",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          gap: "40px",
-          alignItems: "flex-start",
-          maxWidth: 900,
-          width: "100%",
-          flexWrap: "wrap",
-        }}
-      >
-        {/* 🖼 Hình ảnh sản phẩm */}
-        <div
-          style={{
-            flex: "1 1 360px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            background: "#fafafa",
-            borderRadius: 12,
-            padding: 16,
-            height: 400,
-          }}
-        >
-          <img
-            alt={product.name}
-            src={product.imageUrl}
-            style={{
-              width: "100%",
-              height: "100%",
-              maxWidth: 380,
-              objectFit: "contain",
-              borderRadius: 8,
-            }}
-          />
-        </div>
-
-        {/* 📋 Thông tin sản phẩm */}
-        <div style={{ flex: "1 1 360px" }}>
-          <h1 style={{ marginBottom: 8 }}>{product.name}</h1>
-
-          <p
-            style={{
-              fontSize: 22,
-              color: "#1890ff",
-              fontWeight: 600,
-              marginBottom: 12,
-            }}
-          >
-            {product.price?.toLocaleString("vi-VN")} ₫
-          </p>
-
-          <p style={{ color: "#555", marginBottom: 16 }}>
-            {product.description || "No description available."}
-          </p>
-
-          <p style={{ marginBottom: 8 }}>
-            <InboxOutlined style={{ color: "#b37feb", marginRight: 6 }} />
-            <b>Stock:</b> {product.stock ?? "N/A"}
-          </p>
-
-          <p style={{ marginBottom: 16 }}>
-            <TagsOutlined style={{ color: "#faad14", marginRight: 6 }} />
-            <b>Category:</b>{" "}
-            {product.categories?.length > 0 ? (
-              product.categories.map((c) => (
-                <Tag
-                  key={c.id}
-                  color="blue"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate(`/category/${c.id}`)} 
-                >
-                  {c.name}
-                </Tag>
-              ))
-            ) : (
-              <span>Uncategorized</span>
-            )}
-          </p>
-
-          <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
-            <Button
-              type="primary"
-              icon={<ShoppingCartOutlined />}
-              loading={adding}
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </Button>
-
-            <Link to="/products">
-              <Button icon={<ArrowLeftOutlined />}>Back to Products</Button>
-            </Link>
-          </div>
-        </div>
+    <div style={{display:"flex", gap:40, padding:40}}>
+      <img src={product.imageUrl} alt={product.name} style={{width:300,height:300}} />
+      <div>
+        <h1>{product.name}</h1>
+        <p>{product.price?.toLocaleString("vi-VN")} ₫</p>
+        <Button icon={<ShoppingCartOutlined />} loading={adding} onClick={handleAddToCart}>
+          Add to Cart
+        </Button>
+        <Link to="/products"><Button icon={<ArrowLeftOutlined />}>Back</Button></Link>
       </div>
     </div>
   );
