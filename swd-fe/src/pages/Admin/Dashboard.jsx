@@ -4,6 +4,7 @@ import {
   UserOutlined,
   TagsOutlined,
   GiftOutlined,
+  ShoppingCartOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "../../contexts/AuthContext";
@@ -13,6 +14,7 @@ import CategoryManagement from "./CategoryManagement";
 import ProductManagement from "./ProductManagement";
 import Logo from "../../components/Logo";
 import Title from "antd/es/typography/Title";
+import AdminOrderDashboard from "./AdminOrderDashboard";
 
 const { Header, Content, Sider } = Layout;
 
@@ -46,6 +48,12 @@ export default function Dashboard() {
       icon: <GiftOutlined />,
       label: "Quản lý Sản phẩm",
       component: <ProductManagement messageApi={messageApi} modal={modal} />,
+    },
+    {
+      key: "orders",
+      icon: <ShoppingCartOutlined />,
+      label: "Quản lý Đơn hàng",
+      component: <AdminOrderDashboard />,
     },
   ];
 
