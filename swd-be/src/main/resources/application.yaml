@@ -5,9 +5,12 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/swd_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    # 1. Đổi URL để trỏ về localhost, cổng 3306, và database tên 'b2'
+    url: jdbc:mysql://localhost:3306/b2?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    # 2. Đổi username thành 'root' (là username mặc định của XAMPP)
     username: root
-    password: 123456
+    # 3. Đổi password thành rỗng (là password mặc định của XAMPP)
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -16,7 +19,8 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        # 4. Đổi dialect để tương thích với MariaDB/MySQL 5.x của XAMPP
+        dialect: org.hibernate.dialect.MySQLDialect
 jwt:
   signerKey: "S41x2cyVH7vp5sYf5Cj8a+rm31KNLCpb3VskEicbdV3v6WojSmqErjAcEmJjYdYI"
   valid-duration: 12000 # in seconds

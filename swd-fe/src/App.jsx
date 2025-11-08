@@ -21,6 +21,7 @@ import Dashboard from "./pages/Admin/Dashboard";
 import AdminLogin from "./pages/Admin/AdminLogin";
 import Profile from "./pages/Profile";
 import CategoryPage from "./pages/CategoryPage";
+import OrderDetailPage from "./pages/Admin/OrderDetailPage";
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, user } = useAuth();
@@ -65,6 +66,14 @@ export default function App() {
               }
             />
 
+            <Route
+              path="/orders/:orderId"
+              element={
+                <ProtectedRoute>
+                  <OrderDetailPage />
+                </ProtectedRoute>
+              }
+            />
             {/* ----------- Fallback ----------- */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
