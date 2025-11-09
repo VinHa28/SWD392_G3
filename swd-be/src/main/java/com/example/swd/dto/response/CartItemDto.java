@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 
 
 public  class CartItemDto {
-private String imageUrl;
+    private String imageUrl;
     private String productId;
     private String productName;
     private Integer quantity;

@@ -38,12 +38,12 @@ public class CartController {
         );
     }
     @PutMapping("/update")
-    public ResponseEntity<?> updateCartItem(@RequestParam String productId, @RequestParam int quantity) {
+    public ResponseEntity<CartResponse> updateCartItem(@RequestParam String productId, @RequestParam int quantity) {
         return ResponseEntity.ok(cartService.updateCartItemQuantity(productId, quantity));
     }
 
     @DeleteMapping("/remove")
-    public ResponseEntity<?> removeCartItem(@RequestParam String productId) {
+    public ResponseEntity<CartResponse> removeCartItem(@RequestParam String productId) {
         return ResponseEntity.ok(cartService.removeCartItem(productId));
     }
 
