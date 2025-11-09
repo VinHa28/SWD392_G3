@@ -465,23 +465,7 @@ setIsCartEmpty(items.length === 0);
     ₫
   </span>
 </div>
-      <Button
-        type="primary"
-        size="large"
-        style={{
-          backgroundColor: "#8B0000",
-          borderColor: "#8B0000",
-          width: "100%",
-          borderRadius: 8,
-          marginTop: 16,
-        }}
-        onClick={() => {
-          closeCartDrawer();
-          navigate("/cart");
-        }}
-      >
-        Xem chi tiết giỏ hàng
-      </Button>
+     
     </div>
   )}
 </Drawer>
