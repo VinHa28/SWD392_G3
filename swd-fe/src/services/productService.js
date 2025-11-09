@@ -17,7 +17,7 @@ export const getAllProducts = (filters = {}) => {
       maxPrice: 500000
     }
   */
-  const params = {};
+  const params = {};                                
 
   if (filters.search) params.search = filters.search;
   if (filters.category) params.category = filters.category;
